@@ -15,6 +15,7 @@ def setup(py_params_dict):
             **py_params_dict,
             "system_attributes": {
                 # Every attribute in this dictionary will override/append to the ones of the iob_system parent core.
+                "cpu" : "iob_ibex",
                 "board_list": ["aes_ku040_db_g", "cyclonev_gt_dk", "zybo_z7"],
                 "ports": [
                     {
