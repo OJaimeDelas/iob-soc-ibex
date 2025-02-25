@@ -82,4 +82,3 @@ EMUL_SRC+=src/iob_printf.c
 # PERIPHERAL SOURCES
 EMUL_SRC+=$(addprefix src/,$(addsuffix .c,$(PERIPHERALS)))
 EMUL_SRC+=$(addprefix src/,$(addsuffix _csrs_pc_emul.c,$(PERIPHERALS)))
-
