@@ -14,6 +14,8 @@ def setup(py_params_dict):
             # Every parameter in the lines below will be passed to the iob_system parent core.
             **py_params_dict,
             "cpu": "iob_ibex",
+            # Memory address width
+            "mem_addr_w": 15,  # the default 18 are not visible in xcelium
             "system_attributes": {
                 # Every attribute in this dictionary will override/append to the ones of the iob_system parent core.
                 "board_list": ["aes_ku040_db_g", "cyclonev_gt_dk", "zybo_z7"],
