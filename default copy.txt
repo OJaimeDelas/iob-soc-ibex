@@ -1,0 +1,224 @@
+# SPDX-FileCopyrightText: 2025 IObundle
+#
+# SPDX-License-Identifier: MIT
+
+{ pkgs ? import <nixpkgs> {} }:
+
+let
+  py2hwsw_commit = "6badfa89fd8be09939e269c1904582695d83e5fd"; # Replace with the desired commit.
+  py2hwsw_sha256 = "sha256-hbXznM77AtqsqoTTQbbUytVovaPzIsrgoTtMsgR0mYY="; # Replace with the actual SHA256 hash.
+
+
+  fusesoc_commit = "0.1"; # Replace with the desired commit.
+  fusesoc_sha256 = "sha256-Q+Q/X/hgpdzrHke2kXaXAsTp+8p1wRJi2pvtOKwd1/Q="; # Replace with the actual SHA256 hash.
+
+  edalize_commit = "0.3.3"; # Replace with the desired commit.
+  edalize_sha256 = "sha256-iIf7bUBE2SeS/TByUNL9wI1LswlHTmgHYGJltWXNUWE="; # Replace with the actual SHA256 hash.
+
+  pathlib3x_commit = "82ad12d90484ef9c830d11eb60a5c84e3b9d8d68"; # Replace with the desired commit.
+  pathlib3x_sha256 = "sha256-E2yn2UDR7+b9H/EtvfHAhTAS8iFvmKpDu33BHGPxvLI="; # Replace with the actual SHA256 hash.
+
+  vunit_hdl_commit = "4.7.0"; # Replace with the desired commit.
+  vunit_hdl_sha256 = "sha256-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="; # Replace with the actual SHA256 hash.
+
+  svgpy_commit = "1.5.0"; # Replace with the desired commit.
+  svgpy_sha256 = "sha256-Lxzk3IVCD4PG36Pozz2crccwxCAAAM2QfS4rgwbjs6g="; # Replace with the actual SHA256 hash.
+
+  pyvsc_commit = "1cf5ff38a34b06d46c9bff1abf7a9095ab338ec7"; # Replace with the desired commit.
+  pyvsc_sha256 = "sha256-fUuHPo4jW/EHXTneyXgoiG6N6SFomCloVeliA+NfWn8="; # Replace with the actual SHA256 hash.
+
+
+  # Get local py2hwsw root from `PY2HWSW_ROOT` env variable
+  py2hwswRoot = builtins.getEnv "PY2HWSW_ROOT";
+
+  # For debug
+  force_py2_build = 0;
+
+  py2hwsw = 
+    # If no root is provided, or there is a root but we want to force a rebuild
+    if py2hwswRoot == "" || force_py2_build != 0 then
+      pkgs.python3.pkgs.buildPythonPackage rec {
+        pname = "py2hwsw";
+        version = py2hwsw_commit;
+        src =
+          if py2hwswRoot != "" then
+            # Root provided, use local
+            pkgs.lib.cleanSource py2hwswRoot
+          else
+            # No root provided, use GitHub
+            (pkgs.fetchFromGitHub {
+              owner = "IObundle";
+              repo = "py2hwsw";
+              rev = py2hwsw_commit;
+              sha256 = py2hwsw_sha256;
+              fetchSubmodules = true;
+            }).overrideAttrs (_: {
+              GIT_CONFIG_COUNT = 1;
+              GIT_CONFIG_KEY_0 = "url.https://github.com/.insteadOf";
+              GIT_CONFIG_VALUE_0 = "git@github.com:";
+            });
+        # Add any necessary dependencies here.
+      }
+    else
+      null;
+
+  # Custom GitHub packages
+  edalize = pkgs.python3.pkgs.buildPythonPackage rec {
+    pname = "edalize";
+    version = edalize_commit;
+    src = pkgs.fetchFromGitHub {
+      owner = "lowRISC";
+      repo = "edalize";
+      rev = edalize_commit;
+      sha256 = edalize_sha256;
+    };
+    doCheck = false; # Disable tests
+    propagatedBuildInputs = with pkgs; [
+      # Add dependencies required by edalize
+      python3Packages.jinja2
+      #vunit_hdl
+    ];
+  };
+
+  vunit_hdl = pkgs.python3.pkgs.buildPythonPackage rec {
+    pname = "vunit_hdl";
+    version = vunit_hdl;  # Replace with the desired version
+    src = pkgs.fetchFromGitHub {
+      owner = "VUnit";
+      repo = "vunit";
+      rev = vunit_hdl_commit;  # Replace with the correct tag or commit
+      sha256 = vunit_hdl_sha256;  # Replace with the actual hash
+    };
+    doCheck = false; # Disable tests
+    propagatedBuildInputs = with pkgs.python3Packages; [
+      # Add dependencies if any
+    ];
+  };
+
+  fusesoc = pkgs.python3.pkgs.buildPythonPackage rec {
+    pname = "fusesoc";
+    version = fusesoc_commit;
+    src = pkgs.fetchFromGitHub {
+      owner = "lowRISC";
+      repo = "fusesoc";
+      rev = fusesoc_commit;
+      sha256 = fusesoc_sha256; 
+    };
+    propagatedBuildInputs = with pkgs; [
+      edalize
+      python3Packages.pyyaml
+      python3Packages.pyparsing
+      python3Packages.setuptools_scm
+      python3Packages.setuptools
+      python3Packages.simplesat
+    ];
+    # Disable setuptools-scm version detection
+    SETUPTOOLS_SCM_PRETEND_VERSION = version;
+  };
+
+  pathlib3x = pkgs.python3.pkgs.buildPythonPackage rec {
+  pname = "pathlib3x";
+  version = pathlib3x_commit;
+  src = pkgs.fetchFromGitHub {
+    owner = "bitranox";
+    repo = "pathlib3x";
+    rev = pathlib3x_commit; 
+    sha256 = pathlib3x_sha256;
+  };
+  propagatedBuildInputs = with pkgs.python3Packages; [
+    #cli-exit-tools
+    #click
+  ];
+  };
+
+  # typing_utils = pkgs.python3.pkgs.buildPythonPackage rec {
+  # pname = "typing-utils";
+  # version = typing_utils_commit;
+  # src = pkgs.fetchFromGitHub {
+  #   owner = "bojiang";
+  #   repo = "typing_utils";
+  #   rev = typing_utils_commit;
+  #   sha256 = typing_utils_sha256;
+  # };
+  # propagatedBuildInputs = with pkgs.python3Packages; [
+  #   # Add dependencies if any
+  # ];
+  # };
+
+  svgpy = pkgs.python3.pkgs.buildPythonPackage rec {
+  pname = "svg.py";
+  version = svgpy_commit;
+  src = pkgs.fetchFromGitHub {
+    owner = "orsinium-labs";
+    repo = "svg.py";
+    rev = svgpy_commit;
+    sha256 = svgpy_sha256;
+  };
+  propagatedBuildInputs = with pkgs.python3Packages; [
+    # Add dependencies if any
+  ];
+  };
+
+  pyvsc = pkgs.python3.pkgs.buildPythonPackage rec {
+  pname = "pyvsc";
+  version = pyvsc_commit;
+  src = pkgs.fetchFromGitHub {
+    owner = "fvutils";
+    repo = "pyvsc";
+    rev = pyvsc_commit;
+    sha256 = pyvsc_sha256;
+  };
+  propagatedBuildInputs = with pkgs; [
+    # python3Packages.pyboolector
+    # python3Packages.pyucis
+    # python3Packages.toposort
+  ];
+  };
+
+  extra_pkgs = with pkgs; [
+    elfutils  # libelf and its development libraries
+    python3Packages.packaging
+    python3Packages.pyyaml
+    python3Packages.mako
+    python3Packages.junit-xml
+    python3Packages.typeguard
+    python3Packages.portalocker
+    python3Packages.pydantic
+    python3Packages.hjson
+    python3Packages.mistletoe
+    python3Packages.premailer
+    python3Packages.jinja2
+    python3Packages.setuptools
+    python3Packages.setuptools_scm
+
+    # Dependencies from vendor/google_riscv-dv/requirements.txt
+    python3Packages.bitstring
+    python3Packages.sphinx
+    python3Packages.pallets-sphinx-themes
+    python3Packages.sphinxcontrib-log-cabinet
+    python3Packages.sphinx-issues
+    python3Packages.sphinx_rtd_theme
+    python3Packages.rst2pdf
+    python3Packages.flake8
+    python3Packages.tabulate
+    python3Packages.pandas
+
+    # Custom GitHub packages
+    #pyvsc
+    #svgpy
+    #typing_utils
+    #pathlib3x
+    edalize
+    fusesoc
+    #vunit_hdl
+  ];
+
+in
+
+# If no root is provided, or there is a root but we want to force a rebuild
+if py2hwswRoot == "" || force_py2_build != 0 then
+  # Use newly built nix package
+ import "${py2hwsw}/lib/python${builtins.substring 0 4 pkgs.python3.version}/site-packages/py2hwsw/lib/default.nix" { inherit pkgs; py2hwsw_pkg = py2hwsw; extra_pkgs = extra_pkgs; }
+else
+  # Use local
+  import "${py2hwswRoot}/py2hwsw/lib/default.nix" { inherit pkgs; py2hwsw_pkg = py2hwsw; extra_pkgs = extra_pkgs; }

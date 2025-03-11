@@ -4,7 +4,7 @@
 
 CORE := iob_soc
 
-SIMULATOR ?= icarus
+SIMULATOR ?= xcelium
 SYNTHESIZER ?= yosys
 LINTER ?= spyglass
 BOARD ?= cyclonev_gt_dk
@@ -21,17 +21,27 @@ ifneq ($(DEBUG),)
 EXTRA_ARGS +=--debug_level $(DEBUG)
 endif
 
+IBEX_SETUP_DIR ?=  submodules/iob-ibex/submodules/ibex/build/ibex_out
+
+# nix-shell --run "make -C submodules/iob-ibex/ generate-ibex copy-ibex COPY_DIR=../../../$(CORE)_V$(VERSION)/hardware/src/ && make -C submodules/iob-ibex/ clean-ibex"
+
 setup:
 	nix-shell --run "py2hwsw $(CORE) setup --no_verilog_lint --py_params 'use_intmem=$(USE_INTMEM):use_extmem=$(USE_EXTMEM):init_mem=$(INIT_MEM)' $(EXTRA_ARGS)"
 
+ibex-setup: generate-ibex
+	make -C submodules/iob-ibex/ copy-ibex COPY_DIR=../../../$(CORE)_V$(VERSION)/hardware/src/ && make -C submodules/iob-ibex/ clean-ibex
+
+generate-ibex:
+	nix-shell --run "cd submodules/iob-ibex/submodules/ibex && fusesoc --cores-root . run --target=lint --setup --build-root $(IBEX_SETUP_DIR) lowrisc:ibex:ibex_top"
+
 pc-emul-run:
-	nix-shell --run "make clean setup && make -C ../$(CORE)_V$(VERSION)/ pc-emul-run"
+	nix-shell --run "make clean setup ibex-setup && make -C ../$(CORE)_V$(VERSION)/ pc-emul-run"
 
 pc-emul-test:
-	nix-shell --run "make clean setup && make -C ../$(CORE)_V$(VERSION)/ pc-emul-run"
+	nix-shell --run "make clean setup ibex-setup && make -C ../$(CORE)_V$(VERSION)/ pc-emul-run"
 
 sim-run:
-	nix-shell --run "make clean setup && make -C ../$(CORE)_V$(VERSION)/ sim-run SIMULATOR=$(SIMULATOR)"
+	nix-shell --run "make clean setup ibex-setup && make -C ../$(CORE)_V$(VERSION)/ sim-run SIMULATOR=$(SIMULATOR)"
 
 sim-test:
 	nix-shell --run "make clean setup USE_INTMEM=1 USE_EXTMEM=0 INIT_MEM=1 && make -C ../$(CORE)_V$(VERSION)/ sim-run SIMULATOR=icarus"
@@ -40,7 +50,7 @@ sim-test:
 	nix-shell --run "make clean setup USE_INTMEM=0 USE_EXTMEM=1 INIT_MEM=0 && make -C ../$(CORE)_V$(VERSION)/ sim-run SIMULATOR=verilator"
 
 fpga-run:
-	nix-shell --run "make clean setup && make -C ../$(CORE)_V$(VERSION)/ fpga-fw-build BOARD=$(BOARD)"
+	nix-shell --run "make clean setup ibex-setup && make -C ../$(CORE)_V$(VERSION)/ fpga-fw-build BOARD=$(BOARD)"
 	make -C ../$(CORE)_V$(VERSION)/ fpga-run BOARD=$(BOARD)
 
 fpga-test:
@@ -50,10 +60,10 @@ fpga-test:
 	make clean setup fpga-run BOARD=aes_ku040_db_g USE_INTMEM=0 USE_EXTMEM=1 INIT_MEM=0 
 
 syn-build: clean
-	nix-shell --run "make setup && make -C ../$(CORE)_V$(VERSION)/ syn-build SYNTHESIZER=$(SYNTHESIZER)"
+	nix-shell --run "make setup ibex-setup && make -C ../$(CORE)_V$(VERSION)/ syn-build SYNTHESIZER=$(SYNTHESIZER)"
 
 lint-run: clean
-	nix-shell --run "make setup && make -C ../$(CORE)_V$(VERSION)/ lint-run LINTER=$(LINTER)"
+	nix-shell --run "make setup ibex-setup && make -C ../$(CORE)_V$(VERSION)/ lint-run LINTER=$(LINTER)"
 
 doc-build:
 	nix-shell --run "make clean setup && make -C ../$(CORE)_V$(VERSION)/ doc-build"
@@ -76,7 +86,7 @@ board_server_uninstall:
 board_server_status:
 	systemctl status board_server
 
-.PHONY: setup sim-test fpga-test doc-test test-all board_server_install board_server_uninstall board_server_status
+.PHONY: setup ibex-setup sim-test fpga-test doc-test test-all board_server_install board_server_uninstall board_server_status
 
 
 clean:

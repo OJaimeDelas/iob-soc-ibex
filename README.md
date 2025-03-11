@@ -4,26 +4,31 @@ SPDX-FileCopyrightText: 2025 IObundle
 SPDX-License-Identifier: MIT
 -->
 
-# IOb-SoC:
+# IOb-SoC-Ibex:
 
-IOb-SoC is a System-on-Chip (SoC) described in Python, using the [Py2HWSW](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/lib/default.nix) framework. The SoC is entirely described in a few lines of Python. The Py2HWSW framework describes SoCs with a main [VexRiscv](https://github.com/SpinalHDL/VexRiscv) CPU by adding C software and a list of peripherals. After a setup procedure, Py2HWSW creates a build directory with all the sources and makefiles to build and run various tools on the Soc, such as simulation, synthesis, and FPGA prototyping; the SoC is described in Verilog. The Py2HWSW framework also has a comprehensive library of prebuilt modules and peripherals, including their bare-metal drivers. IObSoC uses the 
-iob-uart and iob-timer from this library. The external memory interface uses an AXI4 master bus. It may be used to access an on-chip RAM or a 3rd party memory controller IP (typically a DDR controller).
+IOb-SoC-Ibex is a System-on-Chip (SoC) built upon [IOb-SoC] (https://github.com/IObundle/iob-soc-ibex). It is a modified version of IOb-SoC that uses [Ibex] (https://github.com/lowRISC/ibex) as the CPU.
+Like IOb-Soc, IOb-Soc-Ibex is described in Python, using the [Py2HWSW](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/lib/default.nix) framework. The SoC is entirely described in a few lines of Python. The Py2HWSW framework describes SoCs with a main [Ibex] (https://github.com/lowRISC/ibex) CPU by adding C software and a list of peripherals. After a setup procedure, Py2HWSW creates a build directory with all the sources and makefiles to build and run various tools on the Soc, such as simulation, synthesis, and FPGA prototyping; the SoC is described in Verilog. The Py2HWSW framework also has a comprehensive library of prebuilt modules and peripherals, including their bare-metal drivers. IOb-SoC-Ibex uses the iob-uart and iob-timer from this library. The external memory interface uses an AXI4 master bus. It may be used to access an on-chip RAM or a 3rd party memory controller IP (typically a DDR controller).
 
   
 ## Dependencies
 
-IOb-SoC needs the [Py2HWSW](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/lib/default.nix) framework.
+IOb-SoC-Ibex needs the [Py2HWSW](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/lib/default.nix) framework.
 
 
 ## Operating Systems
 
-IOb-SoC can run on most mainstream Linux distributions. The reference distribution is Ubuntu 24.04.1 LTS.
+IOb-SoC-Ibex can run on most mainstream Linux distributions. The reference distribution is Ubuntu 24.04.1 LTS.
 
 
 ## SoC Configuration
 
-The SoC configuration is in the `iob_soc.py` file at the repository root. To create your own SoC description, follow the instructions in the Py2HWSW user guide. 
+The SoC configuration is in the `iob_soc.py` file at the repository root. To create your own SoC description, follow the instructions in the Py2HWSW user guide.
+For example, by using
 
+```Bash
+cpu = "iob_ibex",
+```
+as one of the parameters, the Py2HWSW framework will use the CPU described in [IOb-Ibex] (https://github.com/IObundle/iob-ibex), which is a submodule of this very repository. If that parameter was deleted, the Py2HWSW framework would use the default CPU, [IOb-VexRiscV] (https://github.com/IObundle/iob-vexriscv), a wrapper for [VexRiscV] (https://github.com/SpinalHDL/VexRiscv).
 
 ## Setup the SoC by Creating the build directory
 
@@ -38,10 +43,15 @@ The build directory is created in the folder ../iob_soc_Vx.y, where Vx.y is the 
 
 The build directory only has source code files and Makefiles. If you do not want to use the Py2HWSW framework, you may, from now on, only use the build directory, provided you have installed all the tools that makefiles will call outside the nix-shell environment.
 
+## Setup the Ibex by generating RTL files
+
+To use IOb-Soc-Ibex with the Ibex RTL files, they need to be copied to the build directory, as with all the other system's files. The [Ibex] (https://github.com/lowRISC/ibex) repository uses a custom fork of [FuseSoc] (https://github.com/olofk/fusesoc) to generate all the dependencies and RTL files of the system, so we created a wrapper  [IOb-Ibex] (https://github.com/IObundle/iob-ibex) that interacts with [Ibex] (https://github.com/lowRISC/ibex), generating and copying all the files.
+The top Makefile of this repository calls upon the Makefile of [IOb-Ibex] (https://github.com/IObundle/iob-ibex) using the "ibex-setup" target. More information regarding this interactions should be found there.
+
 ## Emulate the system on PC
 
-You can *emulate* IOb-SoC's on a PC to develop and debug your embedded software. A model to emulate the UART uses a Python console server that comes with Py2HWSW. The same server is used to communicate with FPGA targets.
-If you develop peripherals, you can build embedded software models for PC emulation. To emulate IOb-SoC's embedded software on a PC, type:
+You can *emulate* IOb-SoC-Ibex's on a PC to develop and debug your embedded software. A model to emulate the UART uses a Python console server that comes with Py2HWSW. The same server is used to communicate with FPGA targets.
+If you develop peripherals, you can build embedded software models for PC emulation. To emulate IOb-SoC-Ibex's embedded software on a PC, type:
 
 ```Bash
 make pc-emul-run
@@ -53,7 +63,7 @@ make pc-emul-test
 
 ## Simulate the system
 
-To simulate IOb-SoC's RTL using a Verilog simulator, run:
+To simulate IOb-SoC-Ibex's RTL using a Verilog simulator, run:
 ```Bash
 make sim-run [SIMULATOR=icarus!verilator|xcelium|vcs|questa] [USE_INTMEM=0|1] [USE_EXTMEM=0|1] [INIT_MEM=0|1]
 ```
@@ -76,12 +86,12 @@ GRAB_TIMEOUT ?= 3600
 
 ## Run on FPGA board
 
-The FPGA design tools must be installed locally to build and run IOb-SoC on an FPGA board. The FPGA board must also be attached to the local host. Currently, only AMD (Xilinx) and Altera boards are supported.
+The FPGA design tools must be installed locally to build and run IOb-SoC-Ibex on an FPGA board. The FPGA board must also be attached to the local host. Currently, only AMD (Xilinx) and Altera boards are supported.
 
 The board settings are in the  [`../iob_soc_Vx.y/hardware/fpga/<tool>/<board_dir>`](https://github.com/IObundle/py2hwsw/tree/main/py2hwsw/hardware/fpga) directory.
 For example, the [`../iob_soc_Vx.y/hardware/fpga/vivado/basys3`](https://github.com/IObundle/py2hwsw/tree/main/py2hwsw/hardware/fpga/vivado/basys3) directory contents describe the board BASYS3, which has an FPGA device that can be programmed by the Xilinx/AMD Vivado design tool.
 
-To build an FPGA design of an IOb-SoC system and run it on the board located in the `board_dir` directory, type
+To build an FPGA design of an IOb-SoC-Ibex system and run it on the board located in the `board_dir` directory, type
 ```Bash
 make fpga-run [BOARD=<board_dir>] [USE_INTMEM=0|1] [USE_EXTMEM=0|1] [INIT_MEM=0|1]
 ```
@@ -90,7 +100,7 @@ To run an FPGA test comparing the result to the expected result, run
 ```Bash
 make fpga-test
 ```
-The FPGA test contents can be edited in IOb-SoC's top Makefile. 
+The FPGA test contents can be edited in IOb-SoC-Ibex's top Makefile. 
 
 To configure the serial port connected to the FPGA board, set the corresponding environment variable for that board.
 The environment variables for each board are available in their [`board.mk`](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/hardware/fpga/vivado/basys3/board.mk) file.
@@ -123,7 +133,7 @@ make test-all
 
 ## Running more Makefile Targets
 
-The examples above are the Makefile targets at IOb-SoC's root directory that call the targets in the top Makefile in the build directory. Please explore the available targets in the build directory's top Makefile to add more targets to the root directory Makefile.
+The examples above are the Makefile targets at IOb-SoC-Ibex's root directory that call the targets in the top Makefile in the build directory. Please explore the available targets in the build directory's top Makefile to add more targets to the root directory Makefile.
 
 ## Cleaning the build directory
 To clean the build directory, run
