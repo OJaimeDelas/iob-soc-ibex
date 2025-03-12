@@ -82,19 +82,6 @@ First, we use the default [Nix-Shell Environment](https://github.com/IObundle/io
 Then we comunicate with the [Makefile of IOb-Ibex](https://github.com/IObundle/iob-ibex/blob/main/Makefile), that will use the [Nix Flakes Environment](https://github.com/IObundle/iob-ibex/blob/main/flake.nix) to generate the RTL files, and will then copy everything to the Build Directory.
 At last, we return to the default [Nix-Shell Environment](https://github.com/IObundle/iob-soc-ibex/blob/main/default.nix) to run the system inside the Build Directory.
 
-## Emulate the system on PC
-
-You can *emulate* IOb-SoC-Ibex's on a PC to develop and debug your embedded software. A model to emulate the UART uses a Python console server that comes with Py2HWSW. The same server is used to communicate with FPGA targets.
-If you develop peripherals, you can build embedded software models for PC emulation. To emulate IOb-SoC-Ibex's embedded software on a PC, type:
-
-```Bash
-make pc-emul-run
-```
-The Makefile compiles and runs the software in the `../iob_soc_Vx.y/software/` directory. The Makefile includes the `sw_build.mk` segment supplied initially in the same directory. Please feel free to change this file for your specific project. To run an emulation test comparing the result to the expected result, run
-```Bash
-make pc-emul-test
-```
-
 ## Important Simulation Notes
 
 Whenever the system is setup, with:
@@ -133,6 +120,18 @@ The simulator will timeout after GRAB_TIMEOUT seconds, which is 300 seconds by d
 GRAB_TIMEOUT ?= 3600
 ```
 
+## Emulate the system on PC
+
+You can *emulate* IOb-SoC-Ibex's on a PC to develop and debug your embedded software. A model to emulate the UART uses a Python console server that comes with Py2HWSW. The same server is used to communicate with FPGA targets.
+If you develop peripherals, you can build embedded software models for PC emulation. To emulate IOb-SoC-Ibex's embedded software on a PC, type:
+
+```Bash
+make pc-emul-run
+```
+The Makefile compiles and runs the software in the `../iob_soc_Vx.y/software/` directory. The Makefile includes the `sw_build.mk` segment supplied initially in the same directory. Please feel free to change this file for your specific project. To run an emulation test comparing the result to the expected result, run
+```Bash
+make pc-emul-test
+```
 
 ## Run on FPGA board
 
