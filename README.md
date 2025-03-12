@@ -63,7 +63,8 @@ The build directory only has source code files and Makefiles. If you do not want
 
 ## Setup Ibex by Generating and Copying RTL files
 
-To use IOb-Soc-Ibex with the [Ibex](https://github.com/lowRISC/ibex) RTL files, they need to be copied to the build directory, as with all the other system's files. The [Ibex](https://github.com/lowRISC/ibex) repository uses a custom fork of [FuseSoc](https://github.com/lowRISC/fusesoc) to generate and gather all the dependencies and RTL files of the system, so we created a wrapper [IOb-Ibex](https://github.com/IObundle/iob-ibex) that interacts with [Ibex](https://github.com/lowRISC/ibex), generating and copying all the files to the Build Directory.
+To use IOb-Soc-Ibex with the [Ibex](https://github.com/lowRISC/ibex) RTL files, these files need to be copied to the build directory along with the rest of the system's files. Since the [Ibex](https://github.com/lowRISC/ibex) repository relies on a custom fork of [FuseSoc](https://github.com/lowRISC/fusesoc) to generate and manage dependencies and RTL files, we created a wrapper called [IOb-Ibex](https://github.com/IObundle/iob-ibex). This wrapper streamlines the process by interacting with Ibex, generating the necessary files, and copying them into the build directory automatically.
+
 
 The top [Makefile](https://github.com/IObundle/iob-soc-ibex/blob/main/Makefile) of this repository calls upon the [Makefile of IOb-Ibex](https://github.com/IObundle/iob-ibex/blob/main/Makefile) using the `make ibex-setup` target. More information regarding this interactions should be found there, but, in short, a different Nix environment is used. The necessity of using a separate environment is described in the [README of IOb-Ibex](https://github.com/IObundle/iob-ibex/blob/main/README.md).
 
@@ -89,7 +90,7 @@ make setup
 
 The local [sim_build.mk](https://github.com/IObundle/iob-soc-ibex/blob/main/hardware/simulation/sim_build.mk) makefile is included in an external [Makefile](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/hardware/simulation/Makefile) provided by [Py2HWSW](https://github.com/IObundle/py2hwsw/). In here we could not use the framework like that.
 
-[Ibex](https://github.com/lowRISC/ibex) requires for certain files to be loaded first (such as `*_pkg.sv` files). Since the `include sim_build.mk` statement is only inserted after the sources are loaded, we copied the whole [Makefile](https://github.com/IObundle/iob-soc-ibex/blob/main/hardware/simulation/Makefile) to `hardware/simulation` and defined there the ordering of the sources.
+[Ibex](https://github.com/lowRISC/ibex) requires for certain files to be loaded first (such as `*_pkg.sv` files). Since the `include sim_build.mk` statement is only inserted after the sources are loaded, we copied the whole [Makefile](https://github.com/IObundle/iob-soc-ibex/blob/main/hardware/simulation/Makefile) to `hardware/simulation` and defined the ordering of the sources there.
 
 It is also relevant to notice that Ibex is mainly described in System Verilog. Not all simulators supported by default in [Py2HWSW](https://github.com/IObundle/py2hwsw/), accept System Verilog. `xcelium` was the simulator used while developing, which imposed a memory size limit (the system can simulate with bigger memories, they'll just not be visible in `gtkwave`, for example). To limit the memory size, we used the following parameter in `iob_soc.py`:
 ```Bash
