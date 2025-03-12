@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 # IOb-SoC-Ibex:
 
-IOb-SoC-Ibex is a System-on-Chip (SoC) built upon [IOb-SoC] (https://github.com/IObundle/iob-soc-ibex). It is a modified version of IOb-SoC that uses [Ibex] (https://github.com/lowRISC/ibex) as the CPU.
-Like IOb-Soc, IOb-Soc-Ibex is described in Python, using the [Py2HWSW](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/lib/default.nix) framework. The SoC is entirely described in a few lines of Python. The Py2HWSW framework describes SoCs with a main [Ibex] (https://github.com/lowRISC/ibex) CPU by adding C software and a list of peripherals. After a setup procedure, Py2HWSW creates a build directory with all the sources and makefiles to build and run various tools on the Soc, such as simulation, synthesis, and FPGA prototyping; the SoC is described in Verilog. The Py2HWSW framework also has a comprehensive library of prebuilt modules and peripherals, including their bare-metal drivers. IOb-SoC-Ibex uses the iob-uart and iob-timer from this library. The external memory interface uses an AXI4 master bus. It may be used to access an on-chip RAM or a 3rd party memory controller IP (typically a DDR controller).
+IOb-SoC-Ibex is a System-on-Chip (SoC) built upon [IOb-SoC](https://github.com/IObundle/iob-soc). It is a modified version of IOb-SoC that uses [Ibex](https://github.com/lowRISC/ibex) as the CPU.
+Like IOb-Soc, IOb-Soc-Ibex is described in Python, using the [Py2HWSW](https://github.com/IObundle/py2hwsw/blob/main/py2hwsw/lib/default.nix) framework. The SoC is entirely described in a few lines of Python. The Py2HWSW framework describes SoCs with a main [Ibex](https://github.com/lowRISC/ibex) CPU by adding C software and a list of peripherals. After a setup procedure, Py2HWSW creates a build directory with all the sources and makefiles to build and run various tools on the Soc, such as simulation, synthesis, and FPGA prototyping; the SoC is described in Verilog. The Py2HWSW framework also has a comprehensive library of prebuilt modules and peripherals, including their bare-metal drivers. IOb-SoC-Ibex uses the iob-uart and iob-timer from this library. The external memory interface uses an AXI4 master bus. It may be used to access an on-chip RAM or a 3rd party memory controller IP (typically a DDR controller).
 
   
 ## Dependencies
@@ -23,12 +23,13 @@ IOb-SoC-Ibex can run on most mainstream Linux distributions. The reference distr
 ## SoC Configuration
 
 The SoC configuration is in the `iob_soc.py` file at the repository root. To create your own SoC description, follow the instructions in the Py2HWSW user guide.
+
 For example, by using
 
 ```Bash
 cpu = "iob_ibex",
 ```
-as one of the parameters, the Py2HWSW framework will use the CPU described in [IOb-Ibex] (https://github.com/IObundle/iob-ibex), which is a submodule of this very repository. If that parameter was deleted, the Py2HWSW framework would use the default CPU, [IOb-VexRiscV] (https://github.com/IObundle/iob-vexriscv), a wrapper for [VexRiscV] (https://github.com/SpinalHDL/VexRiscv).
+as one of the parameters, the Py2HWSW framework will use the CPU described in [IOb-Ibex](https://github.com/IObundle/iob-ibex), which is a submodule of this very repository. If that parameter was deleted, the Py2HWSW framework would use the default CPU, [IOb-VexRiscV](https://github.com/IObundle/iob-vexriscv), a wrapper for [VexRiscV](https://github.com/SpinalHDL/VexRiscv).
 
 ## Setup the SoC by Creating the build directory
 
@@ -45,8 +46,8 @@ The build directory only has source code files and Makefiles. If you do not want
 
 ## Setup the Ibex by generating RTL files
 
-To use IOb-Soc-Ibex with the Ibex RTL files, they need to be copied to the build directory, as with all the other system's files. The [Ibex] (https://github.com/lowRISC/ibex) repository uses a custom fork of [FuseSoc] (https://github.com/olofk/fusesoc) to generate all the dependencies and RTL files of the system, so we created a wrapper  [IOb-Ibex] (https://github.com/IObundle/iob-ibex) that interacts with [Ibex] (https://github.com/lowRISC/ibex), generating and copying all the files.
-The top Makefile of this repository calls upon the Makefile of [IOb-Ibex] (https://github.com/IObundle/iob-ibex) using the "ibex-setup" target. More information regarding this interactions should be found there.
+To use IOb-Soc-Ibex with the Ibex RTL files, they need to be copied to the build directory, as with all the other system's files. The [Ibex](https://github.com/lowRISC/ibex) repository uses a custom fork of [FuseSoc](https://github.com/olofk/fusesoc) to generate all the dependencies and RTL files of the system, so we created a wrapper [IOb-Ibex](https://github.com/IObundle/iob-ibex) that interacts with [Ibex](https://github.com/lowRISC/ibex), generating and copying all the files.
+The top Makefile of this repository calls upon the Makefile of [IOb-Ibex](https://github.com/IObundle/iob-ibex) using the "ibex-setup" target. More information regarding this interactions should be found there, but, in short, a different nix environment is used. The necessity of using a separate environment is described in the README of [IOb-Ibex](https://github.com/IObundle/iob-ibex).
 
 ## Emulate the system on PC
 
@@ -82,6 +83,8 @@ The simulator will timeout after GRAB_TIMEOUT seconds, which is 300 seconds by d
 ```Bash
 GRAB_TIMEOUT ?= 3600
 ```
+
+It is relevant to notice that Ibex is mainly described in System Verilog. Not all simulators supported by default, accept System Verilog. 'xcelium' was the simulator used while developing.
 
 
 ## Run on FPGA board

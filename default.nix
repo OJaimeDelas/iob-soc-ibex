@@ -41,17 +41,10 @@ let
       }
     else
       null;
-
-  # Import the intermediate flake outputs
-  ibexFlake = import ./submodules/iob-ibex/flake.nix;
-
-  # Extract the dependencies from the Flake's devShell
-  ibexDependencies = ibexFlake.devShells.${pkgs.system}.default.buildInputs or [];
-
-  # Combine the dependencies from flake.nix with your existing extra_pkgs
+      
   extra_pkgs = with pkgs; [
     # Define other Nix packages for your project here
-  ] ++ ibexDependencies;
+  ];
 
 in
 
