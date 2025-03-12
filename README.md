@@ -108,6 +108,8 @@ The local [sim_build.mk](https://github.com/IObundle/iob-soc-ibex/blob/main/hard
 
 It is also relevant to notice that Ibex is mainly described in System Verilog. Not all simulators supported by default in [Py2HWSW](https://github.com/IObundle/py2hwsw/), accept System Verilog. `xcelium` was the simulator used while developing.
 
+As with the Makefile, [Py2HWSW](https://github.com/IObundle/py2hwsw/) also supplies the system with a testbench, generated upon setup. Some asserions in Ibex were conflicting with the system, so a modified [iob_soc_tb.v](https://github.com/IObundle/iob-soc-ibex/blob/main/hardware/simulation/src/iob_soc_tb.v) is provided with `$assertoff();`. The presence of this file here, will impede [Py2HWSW](https://github.com/IObundle/py2hwsw/) to use the default.
+
 ## How to Simulate the System
 
 To simulate IOb-SoC-Ibex's RTL using a Verilog simulator, run:
