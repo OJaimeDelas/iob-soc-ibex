@@ -16,8 +16,19 @@ def setup(py_params_dict):
             "cpu": "iob_ibex",
             # Memory address width
             "mem_addr_w": 15,  # the default 18 are not visible in xcelium
-            "data_w": 39, # 32bits data + 7 parity
+            #"data_w": 39, # 32bits data + 7 parity
             "system_attributes": {
+                "confs": [
+                    # macros
+                    {  
+                        "name": "DATA_W",
+                        "descr": "Testbench data bus width.",
+                        "type": "M",
+                        "val": 39, # 32bits data + 7 parity
+                        "min": "1",
+                        "max": "39",
+                    },
+                ],
                 # Every attribute in this dictionary will override/append to the ones of the iob_system parent core.
                 "board_list": [
                     "iob_aes_ku040_db_g",
