@@ -15,6 +15,17 @@ USE_INTMEM ?= 1
 USE_EXTMEM ?= 0
 INIT_MEM ?= 1
 
+# TMR config generation parameters
+# for fatori-v usage
+TMR_SCRIPT   		?= select_tmr.py
+TMR_WRAP_FILE     	?= wrapped_registers.json
+TMR_PERCENT 		?= 50
+TMR_SEED     		?=
+TMR_FORCED_FILE   	?= forced_enabled_files.json         	# JSON with forced-enable registers/files
+TMR_FILE_INCLUDE  	?= 1        							# set to 1 to include forced regs in percentage
+TMR_DIS_FLAGS     	?= dis_flags.json         				# JSON with disable flags
+VERBOSE           	?= 1        							# set to 1 for debug output
+
 VERSION ?=$(shell cat iob_soc.py | grep version | cut -d '"' -f 4)
 
 ifneq ($(DEBUG),)
@@ -25,7 +36,27 @@ setup:
 	nix-shell --run "py2hwsw $(CORE) setup --no_verilog_lint --py_params 'use_intmem=$(USE_INTMEM):use_extmem=$(USE_EXTMEM):init_mem=$(INIT_MEM)' $(EXTRA_ARGS)"
 
 ibex-setup:
-	make -C submodules/iob_ibex/ generate-ibex && make -C submodules/iob_ibex/ copy-ibex COPY_DIR=../../../$(CORE)_V$(VERSION)/hardware/src/ && make -C submodules/iob_ibex/ clean-ibex
+	@echo "=== Generating Ibex RTL files ==="
+	$(MAKE) -C submodules/iob_ibex generate-ibex
+
+	@echo "=== Copying Ibex files to build directory ==="
+	$(MAKE) -C submodules/iob_ibex copy-ibex COPY_DIR=../../../$(CORE)_V$(VERSION)/hardware/src/
+
+	@echo "=== Generating TMR configuration ==="
+	$(MAKE) -C submodules/iob_ibex tmr-config \
+		TMR_FINAL_FOLDER=../../../$(CORE)_V$(VERSION)/hardware/src \
+		TMR_SCRIPT=$(TMR_SCRIPT) \
+		TMR_WRAP_FILE=$(TMR_WRAP_FILE) \
+		TMR_FORCED_FILE=$(TMR_FORCED_FILE) \
+		TMR_FILE_INCLUDE=$(TMR_FILE_INCLUDE) \
+		TMR_DIS_FLAGS=$(TMR_DIS_FLAGS) \
+		TMR_PERCENT=$(TMR_PERCENT) \
+		TMR_SEED=$(TMR_SEED) \
+		VERBOSE=$(VERBOSE)
+
+	@echo "=== Cleaning temporary Ibex build files ==="
+	$(MAKE) -C submodules/iob_ibex clean-ibex
+
 
 pc-emul-run:
 	nix-shell --run "make clean setup"

@@ -16,15 +16,15 @@ def setup(py_params_dict):
             "cpu": "iob_ibex",
             # Memory address width
             "mem_addr_w": 15,  # the default 18 are not visible in xcelium
-            #"data_w": 39, # 32bits data + 7 parity
+            # "data_w": 39, # 32bits data + 7 parity
             "system_attributes": {
                 "confs": [
                     # macros
-                    {  
+                    {
                         "name": "DATA_W",
                         "descr": "Testbench data bus width.",
                         "type": "M",
-                        "val": 39, # 32bits data + 7 parity
+                        "val": 39,  # 32bits data + 7 parity
                         "min": "1",
                         "max": "39",
                     },
