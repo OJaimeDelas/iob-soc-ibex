@@ -90,7 +90,7 @@ sim-test:
 fpga-run:
 	nix-shell --run "make clean setup"
 	make ibex-setup 
-	nix-shell "make -C ../$(CORE)_V$(VERSION)/ fpga-fw-build BOARD=$(BOARD)"
+	nix-shell --run "make -C ../$(CORE)_V$(VERSION)/ fpga-fw-build BOARD=$(BOARD)"
 	make -C ../$(CORE)_V$(VERSION)/ fpga-run BOARD=$(BOARD)
 
 fpga-test:
