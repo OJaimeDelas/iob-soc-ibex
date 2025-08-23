@@ -24,7 +24,7 @@ def setup(py_params_dict):
                         "name": "DATA_W",
                         "descr": "Testbench data bus width.",
                         "type": "M",
-                        "val": 39,  # 32bits data + 7 parity
+                        "val": 32,  # 32bits data + 7 parity
                         "min": "1",
                         "max": "39",
                     },
@@ -32,8 +32,6 @@ def setup(py_params_dict):
                 # Every attribute in this dictionary will override/append to the ones of the iob_system parent core.
                 "board_list": [
                     "iob_aes_ku040_db_g",
-                    "iob_cyclonev_gt_dk",
-                    "iob_zybo_z7",
                 ],
                 "ports": [
                     {

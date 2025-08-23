@@ -7,7 +7,7 @@ CORE := iob_soc
 SIMULATOR ?= xcelium
 SYNTHESIZER ?= yosys
 LINTER ?= spyglass
-BOARD ?= cyclonev_gt_dk
+BOARD ?= iob_aes_ku040_db_g
 
 BUILD_DIR ?= $(shell nix-shell --run "py2hwsw $(CORE) print_build_dir")
 
