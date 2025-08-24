@@ -11,6 +11,7 @@ def setup(py_params_dict):
             # IOb-SoC is a child core of iob_system: https://github.com/IObundle/py2hwsw/tree/main/py2hwsw/lib/hardware/iob_system
             # IOb-SoC will inherit all attributes/files from the iob_system core.
             "core_name": "iob_system",
+            "generate_hw": False,
             # Every parameter in the lines below will be passed to the iob_system parent core.
             **py_params_dict,
             "cpu": "iob_ibex",
