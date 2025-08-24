@@ -58,7 +58,7 @@ def setup(py_params_dict):
                 "name": "FREQ",
                 "descr": "Clock frequency",
                 "type": "F",
-                "val": "40000000",
+                "val": "60000000",
             },
             {
                 "name": "XILINX",
@@ -367,8 +367,8 @@ def setup(py_params_dict):
                 "instance_name": "clk_250_to_100_MHz",
                 "instance_description": "PLL to generate system clock",
                 "parameters": {
-                    "OUTPUT_PER": 25,
-                    "INPUT_PER": 4,
+                    "OUTPUT_PER": 16.667,  # ~60 MHz (1000 / 16.667 ≈ 60.00 MHz)
+                    "INPUT_PER": 4.000,  # 250 MHz input
                 },
                 "connect": {
                     "clk_rst_i": "clk_rst_i",
