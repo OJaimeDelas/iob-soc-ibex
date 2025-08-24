@@ -21,6 +21,7 @@ PYTHON_DIR = ../../scripts
 
 #default board
 BOARD ?= iob_aes_ku040_db_g
+export BOARD
 
 #fpga toolchain
 FPGA_TOOL:=$(shell find . -name $(BOARD) | cut -d"/" -f2)

@@ -19,7 +19,7 @@ INIT_MEM ?= 1
 # for fatori-v usage
 TMR_SCRIPT   		?= select_tmr.py
 TMR_WRAP_FILE     	?= wrapped_registers.json
-TMR_PERCENT 		?= 50
+TMR_PERCENT 		?= 0
 TMR_SEED     		?=
 TMR_FORCED_FILE   	?= forced_enabled_files.json         	# JSON with forced-enable registers/files
 TMR_FILE_INCLUDE  	?= 1        							# set to 1 to include forced regs in percentage

@@ -28,6 +28,12 @@ def setup(py_params_dict):
                         "min": "1",
                         "max": "39",
                     },
+                    {
+                        "name": "BOARD",
+                        "descr": "Default FPGA board",
+                        "type": "M",
+                        "val": "iob_aes_ku040_db_g",
+                    },
                 ],
                 # Every attribute in this dictionary will override/append to the ones of the iob_system parent core.
                 "board_list": [
